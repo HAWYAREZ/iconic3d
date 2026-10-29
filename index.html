@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Iconic 3D — Custom 3D Printing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Noto+Sans+Arabic:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--panel:#1a1a1a;--panel2:#232323;--line:#2e2e2e;--text:#f2f2f2;--mute:#9a9a9a;--acc:#00f0ff;--gold:#d4af37;--danger:#ff5470;--ok:#3ddc97;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Montserrat,system-ui,sans-serif;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:rgba(15,15,15,.92);z-index:60}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+/* Nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(15,15,15,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+.logo{font-weight:800;font-size:1.25rem;letter-spacing:.5px}
+.logo b{color:var(--acc);text-shadow:0 0 14px rgba(0,240,255,.6)}
+.links{display:flex;gap:6px;align-items:center;overflow-x:auto}
+.links a,.links button{padding:8px 12px;border-radius:8px;font-size:.88rem;color:var(--mute);background:none;border:0;cursor:pointer;white-space:nowrap;transition:.2s}
+.links a:hover,.links button:hover{color:var(--text);background:var(--panel)}
+.badge{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:99px;background:var(--acc);color:#001316;font-size:.75rem;font-weight:700;text-align:center}
+/* Buttons */
+.btn{display:inline-block;padding:12px 24px;border-radius:10px;border:1px solid var(--acc);background:var(--acc);color:#001316;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{box-shadow:0 0 24px rgba(0,240,255,.45);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--acc)}
+.btn.sm{padding:7px 12px;font-size:.82rem;border-radius:8px}
+.btn.red{background:transparent;border-color:var(--danger);color:var(--danger)}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none}
+/* Hero */
+.hero{position:relative;overflow:hidden;padding:110px 0 90px;background:radial-gradient(800px 400px at 80% 10%,rgba(0,240,255,.16),transparent),radial-gradient(600px 400px at 10% 90%,rgba(212,175,55,.12),transparent)}
+.hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;opacity:.25;mask-image:linear-gradient(#000,transparent 85%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{color:var(--gold);letter-spacing:3px;font-size:.78rem;text-transform:uppercase;font-weight:600}
+h1{font-size:clamp(2.3rem,7vw,4.6rem);line-height:1.05;margin:14px 0 18px;font-weight:800}
+h1 em{font-style:normal;color:var(--acc);text-shadow:0 0 30px rgba(0,240,255,.5)}
+.hero p{max-width:540px;color:var(--mute);font-size:1.08rem;margin:0 0 28px}
+.hero .row{display:flex;gap:12px;flex-wrap:wrap}
+.stats{display:flex;gap:32px;margin-top:48px;flex-wrap:wrap}
+.stats div b{display:block;font-size:1.5rem;color:var(--gold)}
+.stats div span{color:var(--mute);font-size:.85rem}
+/* Sections */
+section{padding:72px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+h2{font-size:1.9rem;margin:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;font-size:.85rem}
+.chip.on{border-color:var(--acc);color:var(--acc);box-shadow:0 0 12px rgba(0,240,255,.25)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:.25s}
+.card:hover{border-color:var(--acc);box-shadow:0 0 28px rgba(0,240,255,.15);transform:translateY(-4px)}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;background:var(--panel2)}
+.card .body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card h3{margin:0;font-size:1.02rem}
+.tag{align-self:start;font-size:.7rem;padding:3px 9px;border-radius:99px;border:1px solid var(--gold);color:var(--gold);letter-spacing:.5px}
+.price{font-size:1.2rem;font-weight:700}
+.card .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stock{font-size:.76rem;color:var(--mute)}
+.stock.low{color:var(--danger)}
+/* Custom */
+.custom{background:var(--panel);border-block:1px solid var(--line)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.steps{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:14px}
+.steps li{display:flex;gap:14px;color:var(--mute)}
+.steps li i{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--acc);color:var(--acc);display:grid;place-items:center;font-style:normal;font-weight:700}
+/* Forms */
+.form{display:grid;gap:12px}
+.form .r2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font-size:.8rem;color:var(--mute);display:grid;gap:5px}
+input,select,textarea{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:9px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,240,255,.12)}
+textarea{min-height:90px;resize:vertical}
+footer{padding:32px 0;text-align:center;color:var(--mute);font-size:.85rem;border-top:1px solid var(--line)}
+/* Drawer + modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:.25s;z-index:70}
+.overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--panel);border-left:1px solid var(--line);z-index:80;transform:translateX(100%);transition:.3s;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.open{transform:none}
+.d-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+.d-body{flex:1;overflow-y:auto;padding:16px 20px}
+.d-foot{padding:16px 20px;border-top:1px solid var(--line)}
+.x{background:none;border:0;font-size:1.5rem;cursor:pointer;color:var(--mute)}
+.line{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.line img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none}
+.line .info{flex:1;min-width:0}
+.line .info b{display:block;font-size:.92rem}
+.qty{display:inline-flex;align-items:center;gap:8px;margin-top:6px}
+.qty button{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.total{display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700;margin-bottom:12px}
+.modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;padding:20px;overflow-y:auto}
+.modal.open{display:grid}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:min(520px,100%);padding:24px;max-height:100%;overflow-y:auto}
+.modal .box.wide{width:min(760px,100%)}
+.pd{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pd img{width:100%;border-radius:12px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,40px);background:var(--panel2);border:1px solid var(--acc);padding:11px 20px;border-radius:10px;opacity:0;transition:.3s;z-index:100;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+/* Admin */
+.hidden{display:none!important}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--gold);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:1px}
+td img{width:42px;height:42px;border-radius:8px;object-fit:cover}
+.gate{max-width:380px;margin:60px auto;text-align:center}
+.pill{padding:3px 10px;border-radius:99px;font-size:.74rem;border:1px solid var(--line)}
+.pill.custom-t{border-color:var(--gold);color:var(--gold)}
+.empty{color:var(--mute);text-align:center;padding:30px}
+/* Category filter row + smooth filtering */
+#filters{width:100%}
+.chip{white-space:nowrap;transition:.2s}
+.chip:hover{border-color:var(--acc);color:var(--text)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.grid .card{animation:pop .35s ease both}
+@media(max-width:760px){#filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px}}
+/* Admin stat cards */
+.astats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.astat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.astat b{display:block;font-size:1.6rem;color:var(--acc);text-shadow:0 0 14px rgba(0,240,255,.35)}
+.astat span{color:var(--mute);font-size:.8rem}
+/* RTL (Arabic / Kurdish) */
+[dir=rtl] body{font-family:'Noto Sans Arabic',Inter,system-ui,sans-serif}
+[dir=rtl] *{letter-spacing:0!important}
+[dir=rtl] th,[dir=rtl] td{text-align:right}
+[dir=rtl] .badge{margin-left:0;margin-right:4px}
+[dir=rtl] .drawer{right:auto;left:0;border-left:0;border-right:1px solid var(--line);transform:translateX(-100%)}
+[dir=rtl] .drawer.open{transform:none}
+[dir=rtl] input[type=tel],[dir=rtl] input[type=number],[dir=rtl] #pUrl{direction:ltr;text-align:right}
+@media(max-width:760px){.two,.pd{grid-template-columns:1fr}.hero{padding:70px 0 60px}.links a.hide-m{display:none}.form .r2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <a class="logo" href="#home">ICONIC <b>3D</b></a>
+  <div class="links">
+    <a href="#home" class="hide-m">Home</a>
+    <a href="#shop">Shop</a>
+    <a href="#custom">Custom Orders</a>
+    <a href="#admin">Admin</a>
+    <select id="langSel" aria-label="Language" style="width:auto;padding:6px 8px;font-size:.85rem;margin-inline:4px"><option value="en">English</option><option value="ar">العربية</option><option value="ku">کوردی</option></select>
+    <button id="cartBtn">Cart<span class="badge" id="cartCount">0</span></button>
+  </div>
+</div></nav>
+
+<!-- STORE VIEW -->
+<main id="store">
+  <header class="hero" id="home"><div class="wrap">
+    <div class="eyebrow">Additive manufacturing studio</div>
+    <h1>Your imagination,<br><em>printed in layers.</em></h1>
+    <p>Gaming figures, masks, desk organizers, nameplates and anime props, crafted to order with precision FDM and resin printing.</p>
+    <div class="row"><a class="btn" href="#shop">Shop Now</a><a class="btn ghost" href="#custom">Request a Custom Print</a></div>
+    <div class="stats"><div><b>0.05 mm</b><span>Layer precision</span></div><div><b>PLA · PETG</b><span>Premium filaments</span></div><div><b>48 h</b><span>Typical turnaround</span></div></div>
+  </div></header>
+
+  <section id="shop"><div class="wrap">
+    <div class="sec-head"><h2>The Collection</h2><div class="filters" id="filters"></div></div>
+    <div class="grid" id="grid"></div>
+  </div></section>
+
+  <section class="custom" id="custom"><div class="wrap two">
+    <div>
+      <div class="eyebrow">Made for you</div>
+      <h2>Custom Orders</h2>
+      <p style="color:var(--mute)">Have a model file or just an idea? Tell us what you need and we’ll send a quote.</p>
+      <ul class="steps">
+        <li><i>1</i><span>Send your idea, STL file link or reference images.</span></li>
+        <li><i>2</i><span>We review it and reply with a price and timeline.</span></li>
+        <li><i>3</i><span>We print, finish and ship your piece.</span></li>
+      </ul>
+    </div>
+    <form class="form panel" id="customForm">
+      <div class="r2"><label>Name<input name="name" required></label><label>Phone number<input type="tel" name="phone" required></label></div>
+      <label>Material<select name="material"><option>PLA</option><option>PETG</option><option>Resin</option><option>Not sure</option></select></label>
+      <label>Describe your project<textarea name="desc" required placeholder="Size, colors, quantity, file link…"></textarea></label>
+      <button class="btn" type="submit">Request Quote</button>
+    </form>
+  </div></section>
+  <footer>© <span id="yr"></span> Iconic 3D — Crafted layer by layer.</footer>
+</main>
+
+<!-- ADMIN VIEW -->
+<main id="admin" class="hidden"><div class="wrap" style="padding-top:36px;padding-bottom:60px">
+  <div id="gate" class="panel gate">
+    <h2>Admin Access</h2>
+    <p style="color:var(--mute);font-size:.9rem">Enter the owner passcode to manage the store.</p>
+    <form class="form" id="gateForm"><input type="password" id="pass" placeholder="Passcode" required><button class="btn" type="submit">Unlock</button></form>
+  </div>
+  <div id="dash" class="hidden">
+    <div class="sec-head"><h2>Dashboard</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" id="notifyBtn">🔔 Enable alerts</button><select id="curSel" title="Store currency" style="width:auto;padding:7px 10px"><option value="IQD">IQD</option><option value="USD">USD</option></select><button class="btn ghost sm" id="chgPass">Change passcode</button><button class="btn red sm" id="lock">Lock</button></div></div>
+    <div class="astats" id="aStats"></div>
+    <div class="tabs"><button class="chip on" data-tab="tProducts">Products</button><button class="chip" data-tab="tOrders">Orders</button></div>
+
+    <div id="tProducts" class="two" style="grid-template-columns:minmax(0,360px) 1fr;gap:20px">
+      <form class="form panel" id="pForm">
+        <h3 style="margin:0" id="pTitle">Add Product</h3>
+        <input type="hidden" name="id">
+        <label>Name<input name="name" required></label>
+        <div class="r2"><label>Price (<span id="curLbl">IQD</span>)<input type="number" step="any" min="0" name="price" required></label><label>Stock<input type="number" min="0" name="stock" value="10" required></label></div>
+        <div class="r2"><label>Material<select name="material"><option>PLA</option><option>PETG</option><option>Resin</option></select></label><label>Category<select name="category"><option value="gaming">🎮 Gaming Gear</option><option value="desk">💻 Desk Setup &amp; Accessories</option><option value="kitchen">🍳 Kitchen Items</option><option value="figures">🗿 Figures &amp; Collectibles</option></select></label></div>
+        <label>Image: upload a file<input type="file" id="pFile" accept="image/*"></label>
+        <label>…or paste an image URL<input name="img" id="pUrl" placeholder="https://…"></label>
+        <img id="pPrev" class="hidden" alt="Preview" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">
+        <label>Description<textarea name="desc" required></textarea></label>
+        <button class="btn" type="submit" id="pSubmit">Save Product</button>
+        <button class="btn ghost hidden" type="button" id="pCancel">Cancel edit</button>
+      </form>
+      <div class="panel"><select id="aCat" style="width:auto;margin-bottom:12px"></select><div class="scroll"><table><thead><tr><th></th><th>Name</th><th>Price</th><th>Stock</th><th></th></tr></thead><tbody id="pRows"></tbody></table></div></div>
+    </div>
+
+    <div id="tOrders" class="panel scroll hidden"><table><thead><tr><th>ID</th><th>Date</th><th>Customer</th><th>Details</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="oRows"></tbody></table></div>
+  </div>
+</div></main>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="d-head"><h3 style="margin:0">Your Cart</h3><button class="x" data-close>&times;</button></div>
+  <div class="d-body" id="cartBody"></div>
+  <div class="d-foot"><div class="total"><span>Total</span><span id="cartTotal">$0.00</span></div><button class="btn" style="width:100%" id="checkoutBtn">Checkout</button></div>
+</aside>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal" id="checkout"><div class="box">
+  <div style="display:flex;justify-content:space-between"><h3 style="margin:0">Checkout</h3><button class="x" data-close>&times;</button></div>
+  <form class="form" id="coForm" style="margin-top:14px">
+    <label>Full name<input name="name" required></label>
+    <label>Phone number<input type="tel" name="phone" required></label>
+    <label>Delivery address<input name="address" required></label>
+    <label>Notes (optional)<textarea name="notes" style="min-height:70px" placeholder="Colors, size, delivery hints…"></textarea></label>
+    <div class="total" style="margin:6px 0 0"><span>Order total</span><span id="coTotal"></span></div>
+    <button class="btn" type="submit">Place Order</button>
+  </form>
+</div></div>
+
+<!-- PRODUCT DETAIL -->
+<div class="modal" id="detail"><div class="box wide"><div class="pd" id="detailBody"></div><div style="text-align:right;margin-top:12px"><button class="btn ghost sm" data-close>Close</button></div></div></div>
+
+<div class="modal" id="done"><div class="box"><div id="doneBody"></div><div style="text-align:right;margin-top:12px"><button class="btn ghost sm" data-close>Close</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const K = { p: 'i3d_products_v2', c: 'i3d_cart', o: 'i3d_orders', pw: 'i3d_pass_v2', cur: 'i3d_currency', l: 'i3d_lang' };
+
+/* OWNER SETTINGS: your WhatsApp number in international format, digits only, no + or spaces.
+   Example: '9647701234567'. Customers' order details are sent to this number. */
+const OWNER_WHATSAPP = '9647745592005'; // = 07745592005 in international format
+
+/* Store categories: [key saved on the product, English label]. Labels are translated via ROWS. */
+const CATS = [['gaming', '🎮 Gaming Gear'], ['desk', '💻 Desk Setup & Accessories'], ['kitchen', '🍳 Kitchen Items'], ['figures', '🗿 Figures & Collectibles']];
+const catName = k => (CATS.find(c => c[0] === k) || [k, k])[1];
+const mem = {};
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : (mem[k] ?? d); } catch { return mem[k] ?? d; } };
+const save = (k, v) => { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch { setTimeout(() => toast('Storage full or blocked: changes may not persist'), 0); } };
+const money = (n, c = cur) => c === 'USD' ? '$' + Number(n).toFixed(2) : Math.round(n).toLocaleString('en-US') + ' IQD';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+
+/* The catalog starts EMPTY: products only come from the Admin panel. */
+let products = load(K.p, []);
+let cur = load(K.cur, 'IQD');
+products.forEach(p => { p.category = ({ decor: 'desk', stands: 'desk' })[p.category] || p.category; });
+let cart = load(K.c, []);
+let orders = load(K.o, []);
+let filter = 'All';
+
+/* Placeholder art as inline SVG (no remote images needed) */
+function art(p) {
+  const h = [...p.name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+  const e = p.emoji || '🧊';
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(${h},60%,16%)'/><stop offset='1' stop-color='#0f0f0f'/></linearGradient></defs><rect width='400' height='400' fill='url(#g)'/><g stroke='hsl(${h},90%,60%)' stroke-opacity='.18'>${[...Array(9)].map((_, i) => `<path d='M0 ${i * 50}H400M${i * 50} 0V400'/>`).join('')}</g><circle cx='200' cy='200' r='110' fill='none' stroke='#00f0ff' stroke-opacity='.4' stroke-width='2'/><text x='200' y='238' font-size='120' text-anchor='middle'>${e}</text></svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+const imgTag = (p, extra = '') => `<img src="${esc(p.img || art(p))}" alt="${esc(p.name)}" ${extra} onerror="this.onerror=null;this.src='${art(p).replace(/'/g, '%27')}'">`;
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200); }
+
+/* ---------- Shop ---------- */
+function renderShop() {
+  const cats = products.length ? ['All', ...CATS.map(c => c[0])] : [];
+  if (filter !== 'All' && !cats.includes(filter)) filter = 'All';
+  $('#filters').innerHTML = cats.map(c => `<button class="chip ${c === filter ? 'on' : ''}" data-cat="${esc(c)}">${esc(catName(c))}</button>`).join('');
+  const list = products.filter(p => filter === 'All' || p.category === filter);
+  $('#grid').innerHTML = list.length ? list.map(p => `
+    <article class="card ${esc(p.category)}">
+      ${imgTag(p, `data-view="${p.id}"`)}
+      <div class="body">
+        <span class="tag">${esc(p.material)}</span>
+        <h3>${esc(p.name)}</h3>
+        <span class="stock ${p.stock < 5 ? 'low' : ''}">${p.stock > 0 ? (p.stock < 5 ? 'Only ' + p.stock + ' left' : 'In stock') : 'Out of stock'}</span>
+        <div class="foot"><span class="price">${money(p.price)}</span>
+        <button class="btn sm" data-add="${p.id}" ${p.stock < 1 ? 'disabled' : ''}>Add to Cart</button></div>
+      </div>
+    </article>`).join('') : (products.length ? '<div class="empty" style="grid-column:1/-1;padding:40px 20px"><h3 style="color:var(--text);margin:0">No products in this category yet</h3></div>' : '<div class="empty" style="grid-column:1/-1;border:1px dashed var(--line);border-radius:16px;padding:60px 20px"><div style="font-size:2.4rem">🧊</div><h3 style="color:var(--text)">No products available yet</h3><p style="margin:0">New prints are on the way. Check back soon.</p></div>');
+}
+
+function showDetail(id) {
+  const p = products.find(x => x.id === id); if (!p) return;
+  $('#detailBody').innerHTML = `${imgTag(p)}<div><span class="tag">${esc(p.material)} · <span>${esc(catName(p.category))}</span></span><h2 style="margin:10px 0">${esc(p.name)}</h2><p style="color:var(--mute)">${esc(p.desc)}</p><div class="price" style="margin:14px 0">${money(p.price)}</div><button class="btn" data-add="${p.id}" ${p.stock < 1 ? 'disabled' : ''}>Add to Cart</button></div>`;
+  openModal('detail');
+}
+
+/* ---------- Cart ---------- */
+const saveCart = () => { save(K.c, cart); renderCart(); };
+function addToCart(id) {
+  const p = products.find(x => x.id === id); if (!p) return;
+  const l = cart.find(x => x.id === id);
+  if ((l ? l.qty : 0) >= p.stock) return toast('Max stock reached');
+  l ? l.qty++ : cart.push({ id, qty: 1 });
+  saveCart(); toast(p.name + ' added');
+}
+const cartTotal = () => cart.reduce((s, l) => { const p = products.find(x => x.id === l.id); return s + (p ? p.price * l.qty : 0); }, 0);
+function renderCart() {
+  cart = cart.filter(l => products.some(p => p.id === l.id));
+  $('#cartCount').textContent = cart.reduce((s, l) => s + l.qty, 0);
+  $('#cartBody').innerHTML = cart.length ? cart.map(l => {
+    const p = products.find(x => x.id === l.id);
+    return `<div class="line">${imgTag(p)}<div class="info"><b>${esc(p.name)}</b><span style="color:var(--mute);font-size:.82rem">${esc(p.material)} · ${money(p.price)}</span>
+    <div class="qty"><button data-dec="${p.id}">−</button><span>${l.qty}</span><button data-inc="${p.id}">+</button><button data-rm="${p.id}" style="margin-left:8px;width:auto;padding:0 8px;color:var(--danger)">Remove</button></div></div><b>${money(p.price * l.qty)}</b></div>`;
+  }).join('') : '<p class="empty">Your cart is empty.</p>';
+  $('#cartTotal').textContent = money(cartTotal());
+  $('#checkoutBtn').disabled = !cart.length;
+}
+function changeQty(id, d) {
+  const l = cart.find(x => x.id === id), p = products.find(x => x.id === id); if (!l) return;
+  if (d > 0 && l.qty >= p.stock) return toast('Max stock reached');
+  l.qty += d; if (l.qty < 1) cart = cart.filter(x => x !== l);
+  saveCart();
+}
+
+/* ---------- Drawer / modals ---------- */
+function openDrawer(o) { $('#drawer').classList.toggle('open', o); $('#overlay').classList.toggle('open', o); }
+function openModal(id) { $('#' + id).classList.add('open'); $('#overlay').classList.add('open'); }
+function closeAll() { $$('.modal').forEach(m => m.classList.remove('open')); $('#drawer').classList.remove('open'); $('#overlay').classList.remove('open'); }
+
+/* ---------- Instant owner notification (WhatsApp) ---------- */
+function orderText(o) {
+  const c = o.customer;
+  return [
+    '🛒 *New Iconic 3D Order*', '🆔 ' + o.id, '',
+    '👤 *Name:* ' + c.name, '📞 *Phone:* ' + c.phone, '📍 *Address:* ' + c.address,
+    c.notes ? '📝 *Notes:* ' + c.notes : null, '', '*Items:*',
+    ...o.items.map(i => `• ${i.qty}× ${i.name} (${money(i.price, o.currency)})`),
+    '', '💰 *Total:* ' + money(o.total, o.currency)
+  ].filter(l => l !== null).join('\n');
+}
+function notifyOwner(o) {
+  const url = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(orderText(o))}`;
+  $('#doneBody').innerHTML = `<div style="font-size:2.4rem;text-align:center">✅</div>
+    <h3 style="text-align:center;margin:6px 0">Order ${esc(o.id)} received!</h3>
+    <p style="color:var(--mute);text-align:center;font-size:.9rem">One last step: tap below to send your order details to us on WhatsApp so we can confirm it quickly.</p>
+    <a class="btn" style="display:block;text-align:center;background:#25d366;border-color:#25d366;color:#04210f" href="${url}" target="_blank" rel="noopener">Send order on WhatsApp</a>`;
+  openModal('done');
+  try { window.open(url, '_blank', 'noopener'); } catch {}
+}
+
+/* ---------- Placing an order ---------- */
+function placeOrder(f) {
+  const d = Object.fromEntries(new FormData(f));
+  const items = cart.map(l => { const p = products.find(x => x.id === l.id); return { id: p.id, name: p.name, price: p.price, qty: l.qty }; });
+  items.forEach(i => { const p = products.find(x => x.id === i.id); p.stock = Math.max(0, p.stock - i.qty); });
+  const order = { id: 'IC-' + uid().toUpperCase(), date: new Date().toISOString(), type: 'order', customer: d, items, total: cartTotal(), currency: cur, status: 'Pending' };
+  orders.unshift(order); save(K.o, orders); save(K.p, products);
+  cart = []; saveCart(); renderShop(); f.reset(); closeAll();
+  notifyOwner(order);
+}
+
+/* ---------- Admin ---------- */
+const getPass = () => load(K.pw, 'hawyarez22');
+let unlocked = false;
+function renderAdmin() {
+  $('#gate').classList.toggle('hidden', unlocked);
+  $('#dash').classList.toggle('hidden', !unlocked);
+  if (!unlocked) return;
+  $('#curLbl').textContent = cur; $('#curSel').value = cur;
+  const low = products.filter(p => p.stock < 5).length, pend = orders.filter(o => o.status === 'Pending').length;
+  $('#aStats').innerHTML = [[products.length, 'Products'], [orders.length, 'Orders'], [pend, 'Pending'], [low, 'Low stock']].map(([n, l]) => `<div class="astat"><b>${n}</b><span>${l}</span></div>`).join('');
+  const sel = $('#aCat'), cv = sel.value || 'All';
+  sel.innerHTML = ['All', ...CATS.map(c => c[0])].map(k => `<option value="${k}">${esc(k === 'All' ? 'All' : catName(k))}</option>`).join('');
+  sel.value = cv;
+  $('#pRows').innerHTML = products.filter(p => $('#aCat').value === 'All' || p.category === $('#aCat').value).map(p => `<tr><td>${imgTag(p)}</td><td><b>${esc(p.name)}</b><br><span class="stock"><span>${esc(catName(p.category))}</span> · ${esc(p.material)}</span></td><td>${money(p.price)}</td>
+    <td><input type="number" min="0" value="${p.stock}" data-stock="${p.id}" style="width:74px;padding:6px"></td>
+    <td style="white-space:nowrap"><button class="btn ghost sm" data-edit="${p.id}">Edit</button> <button class="btn red sm" data-del="${p.id}">Delete</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty">No products.</td></tr>';
+  $('#oRows').innerHTML = orders.map(o => {
+    const c = o.customer;
+    const det = o.type === 'custom'
+      ? `<span class="pill custom-t">Custom · ${esc(c.material)}</span><br>${esc(c.desc)}`
+      : o.items.map(i => `${i.qty}× ${esc(i.name)}`).join('<br>') + `<br><span class="stock">${esc(c.address)}${c.notes ? '<br>Note: ' + esc(c.notes) : ''}</span>`;
+    return `<tr><td>${esc(o.id)}</td><td>${new Date(o.date).toLocaleDateString()}</td><td><b>${esc(c.name)}</b><br><span class="stock">${esc(c.phone || '')}</span></td><td>${det}</td><td>${o.type === 'custom' ? '—' : money(o.total, o.currency)}</td>
+      <td><select data-status="${o.id}" style="padding:6px">${['Pending', 'Printing', 'Shipped', 'Completed', 'Cancelled'].map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
+      <td><button class="btn red sm" data-delo="${o.id}">×</button></td></tr>`;
+  }).join('') || '<tr><td colspan="7" class="empty">No orders yet.</td></tr>';
+}
+let upImg = '';
+const setPrev = src => { const i = $('#pPrev'); i.src = src || ''; i.classList.toggle('hidden', !src); };
+function resetPForm() { const f = $('#pForm'); f.reset(); f.id.value = ''; upImg = ''; setPrev(''); $('#pTitle').textContent = 'Add Product'; $('#pCancel').classList.add('hidden'); }
+function saveProduct(f) {
+  const d = Object.fromEntries(new FormData(f));
+  const rec = { name: d.name.trim(), price: parseFloat(d.price) || 0, stock: parseInt(d.stock) || 0, material: d.material, category: d.category || 'gaming', img: upImg || d.img.trim(), desc: d.desc.trim() };
+  if (d.id) { const p = products.find(x => x.id === d.id); Object.assign(p, rec); toast('Product updated'); }
+  else { products.push({ id: uid(), emoji: '🧊', ...rec }); toast('Product added'); }
+  save(K.p, products); resetPForm(); renderAll();
+}
+const renderAll = () => { renderShop(); renderCart(); renderAdmin(); };
+
+/* ---------- Multi-language: English / Arabic / Kurdish (Sorani) ----------
+   Every English UI string is a key below: [English, Arabic, Kurdish].
+   To translate a new string, add a row. Product names and your own data are never translated. */
+const LANGS = { en: { dir: 'ltr', tag: 'en' }, ar: { dir: 'rtl', tag: 'ar' }, ku: { dir: 'rtl', tag: 'ckb' } };
+const ROWS = [
+  ['Home', 'الرئيسية', 'سەرەکی'],
+  ['Shop', 'المتجر', 'دووکان'],
+  ['Custom Orders', 'طلبات مخصصة', 'داواکاری تایبەت'],
+  ['Admin', 'الإدارة', 'بەړێوەبەر'],
+  ['Cart', 'السلة', 'سەبەتە'],
+  ['Additive manufacturing studio', 'استوديو التصنيع الإضافي', 'ستۆدیۆی دروستکردنی سێ ڕەهەندی'],
+  ['Your imagination,', 'خيالك،', 'خەیاڵی تۆ،'],
+  ['printed in layers.', 'مطبوع طبقةً بطبقة.', 'چاپکراو چین بە چین.'],
+  ['Gaming figures, masks, desk organizers, nameplates and anime props, crafted to order with precision FDM and resin printing.', 'مجسمات ألعاب، أقنعة، منظمات مكتب، لوحات أسماء وإكسسوارات أنمي، تُصنع حسب الطلب بدقة عالية بطباعة FDM والريزن.', 'فیگەری یاری، ماسک، ڕێکخەری مێز، تابلۆی ناو و پەیکەری ئەنیمێ، بەپێی داواکاری بە وردییەکی بەرز بە چاپی FDM و ڕیزن دروست دەکرێن.'],
+  ['Shop Now', 'تسوق الآن', 'ئێستا بکړە'],
+  ['Request a Custom Print', 'اطلب طباعة مخصصة', 'داوای چاپی تایبەت بکە'],
+  ['Layer precision', 'دقة الطبقة', 'وردی چین'],
+  ['Premium filaments', 'خيوط طباعة فاخرة', 'فیلامێنتی بەرز'],
+  ['Typical turnaround', 'مدة التسليم المعتادة', 'کاتی ئاسایی گەیاندن'],
+  ['The Collection', 'المجموعة', 'کۆمەڵە'],
+  ['All', 'الكل', 'هەموو'],
+  ['No products available yet', 'لا توجد منتجات بعد', 'هێشتا هیچ بەرهەمێک بەردەست نییە'],
+  ['New prints are on the way. Check back soon.', 'طبعات جديدة قادمة. عد قريباً.', 'چاپی نوێ لە ڕێگادایە. بەم زووانە بگەڕێوە.'],
+  ['Out of stock', 'نفدت الكمية', 'نەماوە'],
+  ['In stock', 'متوفر', 'بەردەستە'],
+  ['Add to Cart', 'أضف إلى السلة', 'زیادکردن بۆ سەبەتە'],
+  ['Close', 'إغلاق', 'داخستن'],
+  ['Made for you', 'مصنوع لك', 'تایبەت بۆ تۆ'],
+  ['Have a model file or just an idea? Tell us what you need and we’ll send a quote.', 'لديك ملف تصميم أو مجرد فكرة؟ أخبرنا بما تحتاجه وسنرسل لك عرض سعر.', 'فایلی مۆدێلت هەیە یان تەنها بیرۆکەیەک؟ پێمان بڵێ چیت دەوێت و نرخێکت بۆ دەنێرین.'],
+  ['Send your idea, STL file link or reference images.', 'أرسل فكرتك أو رابط ملف STL أو صور مرجعية.', 'بیرۆکەکەت یان لینکی فایلی STL یان وێنەی نموونە بنێرە.'],
+  ['We review it and reply with a price and timeline.', 'نراجعها ونرد عليك بالسعر ومدة التنفيذ.', 'پێداچوونەوەیی بۆ دەکەین و بە نرخ و کات وەڵام دەدەینەوە.'],
+  ['We print, finish and ship your piece.', 'نطبع القطعة ونجهزها ونشحنها لك.', 'پارچەکەت چاپ دەکەین، تەواوی دەکەین و دەیگەیەنین.'],
+  ['Name', 'الاسم', 'ناو'],
+  ['Phone number', 'رقم الهاتف', 'ژمارەی مۆبایل'],
+  ['Material', 'الخامة', 'ماددە'],
+  ['Not sure', 'لست متأكداً', 'دڵنیا نیم'],
+  ['Describe your project', 'صف مشروعك', 'پڕۆژەکەت باس بکە'],
+  ['Size, colors, quantity, file link…', 'الحجم، الألوان، الكمية، رابط الملف…', 'قەبارە، ڕەنگ، ژمارە، لینکی فایل…'],
+  ['Request Quote', 'اطلب عرض سعر', 'داوای نرخ بکە'],
+  ['Iconic 3D — Crafted layer by layer.', 'آيكونيك 3D — صناعة طبقة بعد طبقة.', 'ئایکۆنیک 3D — چین بە چین دروستکراو.'],
+  ['Your Cart', 'سلة التسوق', 'سەبەتەی تۆ'],
+  ['Total', 'الإجمالي', 'کۆی گشتی'],
+  ['Checkout', 'إتمام الطلب', 'تەواوکردنی داواکاری'],
+  ['Your cart is empty.', 'سلتك فارغة.', 'سەبەتەکەت بەتاڵە.'],
+  ['Remove', 'حذف', 'لابردن'],
+  ['Full name', 'الاسم الكامل', 'ناوی تەواو'],
+  ['Delivery address', 'عنوان التوصيل', 'ناونیشانی گەیاندن'],
+  ['Notes (optional)', 'ملاحظات (اختياري)', 'تێبینی (ئارەزوومەندانە)'],
+  ['Colors, size, delivery hints…', 'الألوان، الحجم، ملاحظات التوصيل…', 'ڕەنگ، قەبارە، تێبینی گەیاندن…'],
+  ['Order total', 'إجمالي الطلب', 'کۆی داواکاری'],
+  ['Place Order', 'تأكيد الطلب', 'داواکاری بکە'],
+  ['One last step: tap below to send your order details to us on WhatsApp so we can confirm it quickly.', 'خطوة أخيرة: اضغط أدناه لإرسال تفاصيل طلبك إلينا عبر واتساب لنؤكده بسرعة.', 'هەنگاوی کۆتایی: کرتە لە خوارەوە بکە بۆ ناردنی وردەکاری داواکارییەکەت بە واتسئاپ تا زوو دووپاتی بکەینەوە.'],
+  ['Send order on WhatsApp', 'أرسل الطلب عبر واتساب', 'داواکاری بنێرە بە واتسئاپ'],
+  ['Admin Access', 'دخول الإدارة', 'چوونەژوورەوەی بەړێوەبەر'],
+  ['Enter the owner passcode to manage the store.', 'أدخل كلمة مرور المالك لإدارة المتجر.', 'وشەی نهێنیی خاوەن بنووسە بۆ بەړێوەبردنی دووکان.'],
+  ['Passcode', 'كلمة المرور', 'وشەی نهێنی'],
+  ['Unlock', 'فتح', 'کردنەوە'],
+  ['Dashboard', 'لوحة التحكم', 'داشبۆرد'],
+  ['Change passcode', 'تغيير كلمة المرور', 'گۆڕینی وشەی نهێنی'],
+  ['Lock', 'قفل', 'قفڵکردن'],
+  ['🔔 Enable alerts', '🔔 تفعيل التنبيهات', '🔔 چالاککردنی ئاگادارکردنەوە'],
+  ['Products', 'المنتجات', 'بەرهەمەکان'],
+  ['Orders', 'الطلبات', 'داواکارییەکان'],
+  ['Add Product', 'إضافة منتج', 'زیادکردنی بەرهەم'],
+  ['Edit Product', 'تعديل المنتج', 'دەستکاریکردنی بەرهەم'],
+  ['Price (', 'السعر (', 'نرخ ('],
+  ['Stock', 'المخزون', 'ستۆک'],
+  ['Category (optional)', 'الفئة (اختياري)', 'پۆل (ئارەزوومەندانە)'],
+  ['Image: upload a file', 'الصورة: ارفع ملفاً', 'وێنە: فایل باربکە'],
+  ['…or paste an image URL', '…أو الصق رابط الصورة', '…یان لینکی وێنە دابنێ'],
+  ['Description', 'الوصف', 'وەسف'],
+  ['Save Product', 'حفظ المنتج', 'پاشەکەوتکردنی بەرهەم'],
+  ['Cancel edit', 'إلغاء التعديل', 'هەڵوەشاندنەوەی دەستکاری'],
+  ['Price', 'السعر', 'نرخ'],
+  ['ID', 'الرقم', 'ژمارە'],
+  ['Date', 'التاريخ', 'بەروار'],
+  ['Customer', 'العميل', 'کړیار'],
+  ['Details', 'التفاصيل', 'وردەکاری'],
+  ['Status', 'الحالة', 'دۆخ'],
+  ['Edit', 'تعديل', 'دەستکاری'],
+  ['Delete', 'حذف', 'سړینەوە'],
+  ['No products.', 'لا توجد منتجات.', 'هیچ بەرهەمێک نییە.'],
+  ['No orders yet.', 'لا توجد طلبات بعد.', 'هێشتا هیچ داواکارییەک نییە.'],
+  ['Pending', 'قيد الانتظار', 'چاوەړوان'],
+  ['Printing', 'قيد الطباعة', 'لە چاپکردندایە'],
+  ['Shipped', 'تم الشحن', 'نێردرا'],
+  ['Completed', 'مكتمل', 'تەواوبوو'],
+  ['Cancelled', 'ملغي', 'هەڵوەشێنراوە'],
+  ['Max stock reached', 'بلغت الحد الأقصى للمخزون', 'گەیشتیتە زۆرترین ستۆک'],
+  ['Product added', 'تمت إضافة المنتج', 'بەرهەم زیادکرا'],
+  ['Product updated', 'تم تحديث المنتج', 'بەرهەم نوێکرایەوە'],
+  ['Stock updated', 'تم تحديث المخزون', 'ستۆک نوێکرایەوە'],
+  ['Status updated', 'تم تحديث الحالة', 'دۆخ نوێکرایەوە'],
+  ['Wrong passcode', 'كلمة المرور خاطئة', 'وشەی نهێنی هەڵەیە'],
+  ['Passcode changed', 'تم تغيير كلمة المرور', 'وشەی نهێنی گۆڕدرا'],
+  ['Alerts blocked', 'التنبيهات محظورة', 'ئاگادارکردنەوە ڕێگەپێنەدراوە'],
+  ['Alerts enabled on this browser', 'تم تفعيل التنبيهات في هذا المتصفح', 'ئاگادارکردنەوە لەم وێبگەڕەدا چالاککرا'],
+  ['Notifications are not supported in this browser', 'الإشعارات غير مدعومة في هذا المتصفح', 'ئاگادارکردنەوە لەم وێبگەڕەدا پشتگیری ناکرێت'],
+  ['Request sent — we’ll be in touch!', 'تم إرسال الطلب — سنتواصل معك!', 'داواکارییەکە نێردرا — پەیوەندیت پێوە دەکەین!'],
+  ['Delete this product?', 'حذف هذا المنتج؟', 'ئەم بەرهەمە بسړدرێتەوە؟'],
+  ['Delete this order record?', 'حذف سجل هذا الطلب؟', 'ئەم تۆمارەی داواکارییە بسړدرێتەوە؟'],
+  ['New passcode (min 4 characters):', 'كلمة المرور الجديدة (4 أحرف على الأقل):', 'وشەی نهێنی نوێ (کەمتر نەبێت لە ٤ پیت):']
+];
+/* Patterns for strings that contain variable parts: [regex, Arabic, Kurdish] */
+const PATS = [
+  [/^Only (\d+) left$/, 'بقي $1 فقط', 'تەنها $1 ماوە'],
+  [/^Order (\S+) received!$/, 'تم استلام الطلب $1!', 'داواکاری $1 وەرگیرا!'],
+  [/^Custom · (.+)$/, 'مخصص · $1', 'تایبەت · $1'],
+  [/^Note: ([\s\S]*)$/, 'ملاحظة: $1', 'تێبینی: $1'],
+  [/^(.+) added$/, 'تمت إضافة $1', '$1 زیادکرا'],
+  [/^Currency set to (\w+) \(prices are not converted\)$/, 'تم ضبط العملة على $1 (لا يتم تحويل الأسعار)', 'دراو کرا بە $1 (نرخەکان ناگۆړدرێن)'],
+  [/^New order (\S+) from (.+)$/, 'طلب جديد $1 من $2', 'داواکاری نوێ $1 لە $2']
+];
+ROWS.push(
+  ['🎮 Gaming Gear', '🎮 معدات الألعاب', '🎮 ئامێری گەیمینگ'],
+  ['💻 Desk Setup & Accessories', '💻 تجهيزات المكتب والإكسسوارات', '💻 ئامرازەکانی مێز و ئەکسسوار'],
+  ['🍳 Kitchen Items', '🍳 أدوات المطبخ', '🍳 کەلوپەلی چێشتخانە'],
+  ['🗿 Figures & Collectibles', '🗿 المجسمات والمقتنيات', '🗿 فیگەر و کۆکراوەکان'],
+  ['Category', 'الفئة', 'پۆل'],
+  ['No products in this category yet', 'لا توجد منتجات في هذه الفئة بعد', 'هێشتا هیچ بەرهەمێک لەم پۆلەدا نییە']
+);
+ROWS.push(
+  ['Low stock', 'مخزون منخفض', 'ستۆکی کەم'],
+  ['Too many attempts. Try again in a moment.', 'محاولات كثيرة جداً. حاول بعد قليل.', 'هەوڵی زۆر. کەمێکی تر هەوڵبدەرەوە.'],
+  ['Too many attempts. Try again in 30 seconds.', 'محاولات كثيرة جداً. حاول مجدداً بعد 30 ثانية.', 'هەوڵی زۆر. دوای ٣٠ چرکە دووبارە هەوڵبدەرەوە.']
+);
+const DICT = { ar: {}, ku: {} };
+ROWS.forEach(([e, a, k]) => { DICT.ar[e] = a; DICT.ku[e] = k; });
+let lang = load(K.l, 'en'); if (!LANGS[lang]) lang = 'en';
+const origText = new WeakMap(), origAttr = new WeakMap();
+function tr(s) {
+  if (lang === 'en') return s;
+  const k = s.trim(); if (!k) return s;
+  const d = DICT[lang][k]; if (d) return s.replace(k, () => d);
+  const i = lang === 'ar' ? 1 : 2;
+  for (const p of PATS) if (p[0].test(k)) return s.replace(k, () => k.replace(p[0], p[i]));
+  return s;
+}
+function translateDom(root = document.body) {
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) {
+    if (/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.parentNode.nodeName)) continue;
+    if (!origText.has(n)) origText.set(n, n.nodeValue);
+    const v = tr(origText.get(n)); if (v !== n.nodeValue) n.nodeValue = v;
+  }
+  root.querySelectorAll('[placeholder]').forEach(el => {
+    if (!origAttr.has(el)) origAttr.set(el, el.getAttribute('placeholder'));
+    el.setAttribute('placeholder', tr(origAttr.get(el)));
+  });
+}
+function applyLang() {
+  const L = LANGS[lang];
+  document.documentElement.lang = L.tag; document.documentElement.dir = L.dir;
+  $('#langSel').value = lang; translateDom();
+}
+/* Re-translate whatever the app renders later (cards, cart, tables, toasts) */
+let tq = false;
+new MutationObserver(() => {
+  if (lang === 'en' || tq) return;
+  tq = true; queueMicrotask(() => { tq = false; translateDom(); });
+}).observe(document.body, { childList: true, subtree: true });
+$('#langSel').onchange = e => { lang = e.target.value; save(K.l, lang); applyLang(); };
+
+/* ---------- Routing (plain #name hashes) ---------- */
+function route() {
+  const h = location.hash.slice(1);
+  const isAdmin = h === 'admin';
+  $('#store').classList.toggle('hidden', isAdmin);
+  $('#admin').classList.toggle('hidden', !isAdmin);
+  if (isAdmin) { window.scrollTo(0, 0); renderAdmin(); }
+  else if (h) setTimeout(() => $('#' + h)?.scrollIntoView(), 0);
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target, g = a => t.closest('[' + a + ']')?.getAttribute(a);
+  if (t.closest('[data-close]') || t === $('#overlay')) return closeAll();
+  if (g('data-add')) return addToCart(g('data-add'));
+  if (g('data-view')) return showDetail(g('data-view'));
+  if (g('data-cat')) { filter = g('data-cat'); return renderShop(); }
+  if (g('data-inc')) return changeQty(g('data-inc'), 1);
+  if (g('data-dec')) return changeQty(g('data-dec'), -1);
+  if (g('data-rm')) { cart = cart.filter(l => l.id !== g('data-rm')); return saveCart(); }
+  if (g('data-edit')) {
+    const p = products.find(x => x.id === g('data-edit')), f = $('#pForm');
+    ['id', 'name', 'price', 'stock', 'material', 'category', 'desc'].forEach(k => f[k].value = p[k] ?? '');
+    upImg = (p.img || '').startsWith('data:') ? p.img : ''; f.img.value = upImg ? '' : (p.img || ''); setPrev(p.img);
+    $('#pTitle').textContent = 'Edit Product'; $('#pCancel').classList.remove('hidden'); f.scrollIntoView({ behavior: 'smooth' }); return;
+  }
+  if (g('data-del')) { if (confirm(tr('Delete this product?'))) { products = products.filter(p => p.id !== g('data-del')); save(K.p, products); renderAll(); } return; }
+  if (g('data-delo')) { if (confirm(tr('Delete this order record?'))) { orders = orders.filter(o => o.id !== g('data-delo')); save(K.o, orders); renderAdmin(); } return; }
+  if (g('data-tab')) {
+    $$('[data-tab]').forEach(b => b.classList.toggle('on', b === t));
+    $('#tProducts').classList.toggle('hidden', g('data-tab') !== 'tProducts');
+    $('#tOrders').classList.toggle('hidden', g('data-tab') !== 'tOrders');
+  }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.stock) { const p = products.find(x => x.id === t.dataset.stock); p.stock = Math.max(0, parseInt(t.value) || 0); save(K.p, products); renderShop(); toast('Stock updated'); }
+  if (t.dataset.status) { orders.find(o => o.id === t.dataset.status).status = t.value; save(K.o, orders); toast('Status updated'); }
+});
+$('#cartBtn').onclick = () => openDrawer(true);
+$('#checkoutBtn').onclick = () => {
+  if (!cart.length) return;
+  $('#coTotal').textContent = money(cartTotal()); openDrawer(false); openModal('checkout');
+};
+$('#coForm').onsubmit = e => { e.preventDefault(); placeOrder(e.target); };
+$('#customForm').onsubmit = e => {
+  e.preventDefault(); const d = Object.fromEntries(new FormData(e.target));
+  orders.unshift({ id: 'CU-' + uid().toUpperCase(), date: new Date().toISOString(), type: 'custom', customer: d, items: [], total: 0, status: 'Pending' });
+  save(K.o, orders); e.target.reset(); toast('Request sent — we’ll be in touch!');
+};
+$('#pForm').onsubmit = e => { e.preventDefault(); saveProduct(e.target); };
+$('#pCancel').onclick = resetPForm;
+$('#aCat').onchange = renderAdmin;
+$('#notifyBtn').onclick = async () => {
+  if (!('Notification' in window)) return toast('Notifications are not supported in this browser');
+  const r = await Notification.requestPermission();
+  toast(r === 'granted' ? 'Alerts enabled on this browser' : 'Alerts blocked');
+};
+/* Fires when another tab of this site (same browser) saves a new order */
+window.addEventListener('storage', e => {
+  if (e.key !== K.o || !e.newValue) return;
+  try {
+    const old = JSON.parse(e.oldValue || '[]'), now = JSON.parse(e.newValue);
+    orders = now; products = load(K.p, products); renderAll();
+    if (now.length > old.length) {
+      const o = now[0];
+      toast('New order ' + o.id + ' from ' + o.customer.name);
+      if ('Notification' in window && Notification.permission === 'granted') new Notification('New Iconic 3D order', { body: o.customer.name + ' · ' + o.customer.phone });
+    }
+  } catch {}
+});
+let fails = 0, lockUntil = 0;
+$('#gateForm').onsubmit = e => {
+  e.preventDefault();
+  if (Date.now() < lockUntil) return toast('Too many attempts. Try again in a moment.');
+  if ($('#pass').value === getPass()) { unlocked = true; fails = 0; $('#pass').value = ''; renderAdmin(); }
+  else {
+    $('#pass').value = '';
+    if (++fails >= 3) { lockUntil = Date.now() + 30000; fails = 0; toast('Too many attempts. Try again in 30 seconds.'); }
+    else toast('Wrong passcode');
+  }
+};
+$('#lock').onclick = () => { unlocked = false; renderAdmin(); };
+$('#curSel').onchange = e => { cur = e.target.value; save(K.cur, cur); renderAll(); toast('Currency set to ' + cur + ' (prices are not converted)'); };
+$('#pUrl').oninput = e => { upImg = ''; setPrev(e.target.value.trim()); };
+$('#pFile').onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => { const im = new Image(); im.onload = () => {
+    const s = Math.min(1, 640 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+    c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+    c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    upImg = c.toDataURL('image/jpeg', 0.82); $('#pUrl').value = ''; setPrev(upImg);
+  }; im.src = r.result; };
+  r.readAsDataURL(file);
+};
+$('#chgPass').onclick = () => { const n = prompt(tr('New passcode (min 4 characters):')); if (n && n.length >= 4) { save(K.pw, n); toast('Passcode changed'); } };
+document.addEventListener('keydown', e => e.key === 'Escape' && closeAll());
+window.addEventListener('hashchange', route);
+
+$('#yr').textContent = new Date().getFullYear();
+renderAll(); route(); applyLang();
+})();
+</script>
+</body>
+</html>
